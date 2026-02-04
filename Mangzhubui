@@ -1,0 +1,210 @@
+--// Mangzhubui libary
+--// made by tyuggytyuyt
+
+
+local UIS = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local Player = Players.LocalPlayer
+
+local Library = {}
+Library.__index = Library
+
+--====================--
+-- CREATE SCREEN GUI --
+--====================--
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "AimbotV8_UI"
+ScreenGui.Parent = Player:WaitForChild("PlayerGui")
+ScreenGui.ResetOnSpawn = false
+
+--====================--
+-- MAIN WINDOW --
+--====================--
+local Main = Instance.new("Frame")
+Main.Size = UDim2.fromScale(0.5, 0.55)
+Main.Position = UDim2.fromScale(0.25, 0.22)
+Main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Main.Parent = ScreenGui
+Main.Active = true
+Main.Draggable = true
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0,40)
+Title.BackgroundTransparency = 1
+Title.Text = "Aimbot v8"
+Title.TextColor3 = Color3.fromRGB(255,255,255)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 20
+Title.Parent = Main
+
+local Sub = Instance.new("TextLabel")
+Sub.Position = UDim2.new(0,0,0,30)
+Sub.Size = UDim2.new(1,0,0,20)
+Sub.BackgroundTransparency = 1
+Sub.Text = "made by tyuggytyuyt"
+Sub.TextColor3 = Color3.fromRGB(180,180,180)
+Sub.Font = Enum.Font.Gotham
+Sub.TextSize = 12
+Sub.Parent = Main
+
+--====================--
+-- SIDEBAR (LEFT TAB) --
+--====================--
+local TabsFrame = Instance.new("Frame")
+TabsFrame.Position = UDim2.new(0,0,0,50)
+TabsFrame.Size = UDim2.new(0.25,0,1,-50)
+TabsFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
+TabsFrame.Parent = Main
+
+local UIList = Instance.new("UIListLayout", TabsFrame)
+UIList.Padding = UDim.new(0,6)
+
+--====================--
+-- CONTENT --
+--====================--
+local Pages = Instance.new("Frame")
+Pages.Position = UDim2.new(0.25,0,0,50)
+Pages.Size = UDim2.new(0.75,0,1,-50)
+Pages.BackgroundColor3 = Color3.fromRGB(30,30,30)
+Pages.Parent = Main
+
+--====================--
+-- FLOATING TOGGLE UI --
+--====================--
+local FloatBtn = Instance.new("TextButton")
+FloatBtn.Size = UDim2.fromOffset(50,50)
+FloatBtn.Position = UDim2.fromScale(0.02,0.4)
+FloatBtn.Text = "UI"
+FloatBtn.Font = Enum.Font.GothamBold
+FloatBtn.TextSize = 16
+FloatBtn.BackgroundColor3 = Color3.fromRGB(0,170,255)
+FloatBtn.TextColor3 = Color3.new(1,1,1)
+FloatBtn.Parent = ScreenGui
+FloatBtn.Active = true
+FloatBtn.Draggable = true
+
+FloatBtn.MouseButton1Click:Connect(function()
+	Main.Visible = not Main.Visible
+end)
+
+--====================--
+-- POV CIRCLE (CENTER) --
+--====================--
+local Pov = Instance.new("Frame")
+Pov.Size = UDim2.fromOffset(120,120)
+Pov.Position = UDim2.fromScale(0.5,0.5)
+Pov.AnchorPoint = Vector2.new(0.5,0.5)
+Pov.BackgroundTransparency = 1
+Pov.Parent = ScreenGui
+
+local Stroke = Instance.new("UIStroke", Pov)
+Stroke.Thickness = 2
+Stroke.Color = Color3.fromRGB(0,170,255)
+
+local Corner = Instance.new("UICorner", Pov)
+Corner.CornerRadius = UDim.new(1,0)
+
+--====================--
+-- WINDOW API --
+--====================--
+function Library:CreateWindow(info)
+	local Window = {}
+	
+	function Window:CreateTab(tabname)
+		local TabBtn = Instance.new("TextButton")
+		TabBtn.Size = UDim2.new(1,-10,0,35)
+		TabBtn.Text = tabname
+		TabBtn.BackgroundColor3 = Color3.fromRGB(40,40,40)
+		TabBtn.TextColor3 = Color3.new(1,1,1)
+		TabBtn.Font = Enum.Font.Gotham
+		TabBtn.TextSize = 14
+		TabBtn.Parent = TabsFrame
+		
+		local Page = Instance.new("ScrollingFrame")
+		Page.Size = UDim2.new(1,0,1,0)
+		Page.CanvasSize = UDim2.new(0,0,0,0)
+		Page.ScrollBarThickness = 4
+		Page.Visible = false
+		Page.Parent = Pages
+		
+		local Layout = Instance.new("UIListLayout", Page)
+		Layout.Padding = UDim.new(0,8)
+		
+		TabBtn.MouseButton1Click:Connect(function()
+			for _,v in pairs(Pages:GetChildren()) do
+				if v:IsA("ScrollingFrame") then
+					v.Visible = false
+				end
+			end
+			Page.Visible = true
+		end)
+		
+		local Tab = {}
+		
+		-- BUTTON
+		function Tab:CreateButton(info)
+			local Btn = Instance.new("TextButton")
+			Btn.Size = UDim2.new(1,-10,0,40)
+			Btn.Text = info.Name
+			Btn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+			Btn.TextColor3 = Color3.new(1,1,1)
+			Btn.Font = Enum.Font.Gotham
+			Btn.Parent = Page
+			
+			Btn.MouseButton1Click:Connect(function()
+				pcall(info.Callback)
+			end)
+		end
+		
+		-- TOGGLE
+		function Tab:CreateToggle(info)
+			local Toggle = Instance.new("TextButton")
+			Toggle.Size = UDim2.new(1,-10,0,40)
+			Toggle.Text = info.Name .. ": OFF"
+			Toggle.BackgroundColor3 = Color3.fromRGB(60,60,60)
+			Toggle.TextColor3 = Color3.new(1,1,1)
+			Toggle.Parent = Page
+			
+			local state = false
+			Toggle.MouseButton1Click:Connect(function()
+				state = not state
+				Toggle.Text = info.Name .. (state and ": ON" or ": OFF")
+				pcall(info.Callback, state)
+			end)
+		end
+		
+		-- SLIDER
+		function Tab:CreateSlider(info)
+			local Slider = Instance.new("TextLabel")
+			Slider.Size = UDim2.new(1,-10,0,40)
+			Slider.Text = info.Name .. ": "..info.Default
+			Slider.TextColor3 = Color3.new(1,1,1)
+			Slider.Parent = Page
+		end
+		
+		-- DROPDOWN
+		function Tab:CreateDropdown(info)
+			local Drop = Instance.new("TextButton")
+			Drop.Size = UDim2.new(1,-10,0,40)
+			Drop.Text = info.Name
+			Drop.Parent = Page
+		end
+		
+		-- PARAGRAPH
+		function Tab:CreateParagraph(info)
+			local Para = Instance.new("TextLabel")
+			Para.Size = UDim2.new(1,-10,0,60)
+			Para.TextWrapped = true
+			Para.Text = info.Title.."\n"..info.Content
+			Para.TextColor3 = Color3.new(1,1,1)
+			Para.Parent = Page
+		end
+		
+		return Tab
+	end
+	
+	return Window
+end
+
+return Library
